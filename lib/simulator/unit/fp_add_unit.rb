@@ -18,6 +18,7 @@ module Simulator
       def execute
         instruction = peek
         return nil if instruction.nil?
+
         if @pipelined
 
           in_time = instruction.in_clock_cycles['EX']

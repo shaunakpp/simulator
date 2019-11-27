@@ -39,19 +39,6 @@ module Simulator
       instruction_set.instructions.each do |inst|
         puts "#{inst.operation} #{inst.in_clock_cycles} #{inst.out_clock_cycles}"
       end
-      # binding.pry
-      # loop do
-      # binding.pry
-      # 500.times do
-      # fetch_stage.call
-      # decode_stage.call
-      # execute_stage.call
-      # write_back_stage.call
-      # if fetch_stage.busy? || decode_stage.busy? || execute_stage.busy? || write_back_stage.busy?
-      # state.clock_cycle += 1
-      # end
-      # end
-      # binding.pry
     end
   end
 end

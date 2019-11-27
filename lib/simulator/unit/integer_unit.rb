@@ -46,6 +46,7 @@ module Simulator
       def parse_config
         @clock_cycles_required = 1
         @clock_cycles_pending = 1
+        @pipelined = false
       end
     end
   end

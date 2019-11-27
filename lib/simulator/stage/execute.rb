@@ -12,7 +12,6 @@ module Simulator
         @state = state
         @functional_units = [
           Unit::IntegerUnit.get(state),
-          # Unit::MemoryUnit.get(state),
           Unit::FpAddUnit.get(state),
           Unit::FpMultiplyUnit.get(state),
           Unit::FpDivideUnit.get(state)
@@ -36,18 +35,37 @@ module Simulator
         get_functional_unit(instruction).accept(instruction)
       end
 
+      def prioritize_contention_units
+        units = @contention_list.values.uniq
+        # get non-pipelined first and then descending order of clock cycles
+        units.partition { |unit| unit.pipelined == false }.flatten.sort_by { |unit| -unit.clock_cycles_required }
+      end
+
+      def prioritize_instructions
+        units = prioritize_contention_units
+        instructions = @contention_list.select { |k,v| units.include?(v) }.keys
+        instructions.sort_by!{ |instruction| instruction.in_clock_cycles['EX'] }
+        instructions
+      end
+
       def mark_for_contention(functional_unit, instruction)
-        @contention_list[functional_unit] = instruction
+        @contention_list[instruction] = functional_unit
       end
 
       def send_to_write_back
-        @contention_list.each do |functional_unit, instruction|
-          instruction.out_clock_cycles['EX'] = state.clock_cycle
-          write_back_stage = Stage::WriteBack.get(state)
-          write_back_stage.accept(instruction)
+        return if @contention_list.empty?
+
+        if @contention_list.keys.count == 1
+          instruction = @contention_list.keys.first
+        else
+          instruction = prioritize_instructions.first
         end
-        @contention_list = {}
+        instruction.out_clock_cycles['EX'] = state.clock_cycle
+        @contention_list.delete(instruction)
+        write_back_stage = Stage::WriteBack.get(state)
+        write_back_stage.accept(instruction)
       end
+
       # rubocop:disable Metrics/LineLength
       def get_functional_unit(instruction)
         case instruction.operation
