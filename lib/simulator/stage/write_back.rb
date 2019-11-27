@@ -18,7 +18,7 @@ module Simulator
       end
 
       def accept(instruction)
-        write_back_unit.add(instruction)
+        write_back_unit.accept(instruction)
       end
 
       def busy?

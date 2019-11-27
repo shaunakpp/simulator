@@ -10,33 +10,37 @@ module Simulator
       def accept(instruction)
         return nil if busy?
 
-        instruction.in_clock_cycles['EX'] = state.clock_cycle
         @clock_cycles_pending = 1
         add(instruction)
       end
 
       def execute
-        return if peek.nil?
+        memory_unit = MemoryUnit.get(state)
+        return if peek.nil? && memory_unit.peek.nil?
 
+        # if cycles_elapsed?
         instruction = peek
+
+        memory_unit.execute if memory_unit.peek
+        return nil if instruction.nil?
+
+        instruction.in_clock_cycles['EX'] = state.clock_cycle
+
         if instruction.result.empty?
           instruction_class = instruction.execution_class
-          executor = instruction_class.new(self, state)
-          executor.execute
+          instruction_class.new(instruction, state).execute
+          # if memory_unit.busy?
+          # TODO: hazard
+          # else
+          remove if memory_unit.accept(instruction)
 
-          memory_unit = MemoryUnit.get(state)
-          if memory_unit.busy?
-          # hazard
-          else
-            @clock_cycles_pending -= 1
-            instruction.out_clock_cycles['EX'] = state.clock_cycle
-            memory_unit.accept(instruction)
-          end
-        else
-          remove
-          memory_unit = MemoryUnit.get(state)
-          memory_unit.execute
+          return nil
         end
+
+        remove if memory_unit.accept(instruction)
+        # remove
+        @clock_cycles_pending -= 1
+        instruction
       end
 
       def parse_config

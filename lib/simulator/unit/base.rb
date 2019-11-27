@@ -38,6 +38,10 @@ module Simulator
         queue.empty?
       end
 
+      def cycles_elapsed?
+        @clock_cycles_pending != @clock_cycles_required
+      end
+
       def parse_config
         raise NotImplementedError, "#{self.class} should parse config"
       end

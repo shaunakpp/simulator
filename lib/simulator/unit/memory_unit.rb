@@ -10,15 +10,20 @@ module Simulator
       def accept(instruction)
         return nil if busy?
 
-        instruction.in_clock_cycles['MEM'] = state.clock_cycle
-        @clock_cycles_pending = 1
+        @clock_cycles_pending = if memory_required?(instruction)
+                                  state.configuration.memory
+                                else
+                                  1
+                                end
         add(instruction)
       end
 
       def execute
         return if peek.nil?
 
-        instruction = remove
+        instruction = peek
+        # instruction.in_clock_cycles['MEM'] = state.clock_cycle
+
         if memory_required?(instruction)
           if instruction.result[:memory_write]
             state.memory.convert_to_binary_and_store(
@@ -27,8 +32,15 @@ module Simulator
             )
           end
         end
+
         @clock_cycles_pending -= 1
-        instruction.out_clock_cycles['MEM'] = state.clock_cycle
+
+        unless @clock_cycles_pending.positive?
+          # instruction.out_clock_cycles['MEM'] = state.clock_cycle
+          remove
+          Stage::Execute.get(state).mark_for_contention(self, instruction)
+        end
+        instruction
       end
 
       def memory_required?(instruction)
@@ -36,7 +48,7 @@ module Simulator
       end
 
       def parse_config
-        @clock_cycles_required = 1
+        @clock_cycles_required = state.configuration.memory
         @clock_cycles_pending = 1
       end
     end

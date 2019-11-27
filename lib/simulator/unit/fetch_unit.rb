@@ -8,21 +8,20 @@ module Simulator
       end
 
       def execute
-        return accept if peek.nil?
+        accept if peek.nil?
+        instruction = peek
+        return nil if instruction.nil?
         return nil if Stage::Decode.get(state).busy?
 
-        @clock_cycles_pending -= 1
-        instruction = remove
+        remove
         instruction.out_clock_cycles['IF'] = state.clock_cycle
+        @clock_cycles_pending -= 1
         instruction
       end
 
       def accept
         instruction = fetch_next
         return if instruction.nil?
-
-        instruction.in_clock_cycles['IF'] = state.clock_cycle
-        nil
       end
 
       def fetch_next
@@ -30,11 +29,12 @@ module Simulator
 
         # TODO: implement cache
         instruction = state.instruction_set.fetch(state.program_counter)
-        unless instruction.nil?
-          add(instruction)
-          @clock_cycles_pending = 1
-          state.program_counter += 1
-        end
+        return nil if instruction.nil?
+
+        add(instruction)
+        instruction.in_clock_cycles['IF'] = state.clock_cycle
+        @clock_cycles_pending = 1
+        state.program_counter += 1
         instruction
       end
 

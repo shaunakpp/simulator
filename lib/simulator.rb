@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-# require './simulator/version'
-
-# Dir['lib/simulator/*.rb'].each { |file| require file }
-# Dir['lib/simulator/parser/*.rb'].each { |file| require file }
-
 require 'zeitwerk'
 loader = Zeitwerk::Loader.for_gem
 loader.setup # ready!
@@ -12,10 +7,6 @@ loader.setup # ready!
 require 'pry'
 module Simulator
   class Error < StandardError; end
-  module Parser; end
-
-  # class State
-  # end
 
   class Base
     attr_reader :configuration, :instruction_set, :register_state, :memory, :state
@@ -24,15 +15,14 @@ module Simulator
       @configuration = Parser::ConfigurationParser.parse(config_file).configuration
       @register_state = Parser::RegisterParser.parse(registers_file).register_state
       @memory = Parser::DataParser.parse(data_file).memory
-      @state = State.new(@configuration, @instruction_set, @register_state, @memory, 0, 0)
+      @state = State.new(@configuration, @instruction_set, @register_state, @memory, 0, 1)
     end
 
     def test_run
-      @fetch_stage.call
-      @decode_stage.call
-      @execute_stage.call
       @write_back_stage.call
-      pp instruction_set
+      @execute_stage.call
+      @decode_stage.call
+      @fetch_stage.call
       state.clock_cycle += 1
     end
 
@@ -44,6 +34,10 @@ module Simulator
 
       20.times do
         test_run
+      end
+
+      instruction_set.instructions.each do |inst|
+        puts "#{inst.operation} #{inst.in_clock_cycles} #{inst.out_clock_cycles}"
       end
       # binding.pry
       # loop do

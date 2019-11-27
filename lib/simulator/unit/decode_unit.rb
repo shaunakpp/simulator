@@ -12,18 +12,20 @@ module Simulator
         # TODO: process hazards
         return if peek.nil?
 
+        instruction = peek
+        instruction.in_clock_cycles['ID'] = state.clock_cycle
         @clock_cycles_pending -= 1
-        instruction = remove
-        return if instruction.nil?
-
-        instruction.out_clock_cycles['ID'] = state.clock_cycle
+        execute_stage = Stage::Execute.get(state)
+        unless execute_stage.get_functional_unit(instruction).busy?
+          remove
+          instruction.out_clock_cycles['ID'] = state.clock_cycle
+        end
         instruction
       end
 
       def accept(instruction)
         return nil if busy?
 
-        instruction.in_clock_cycles['ID'] = state.clock_cycle
         @clock_cycles_pending = 1
         add(instruction)
       end

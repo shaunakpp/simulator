@@ -21,6 +21,10 @@ module Simulator
         decode.accept(instruction)
       end
 
+      def accept
+        fetch_unit.accept
+      end
+
       def busy?
         fetch_unit.busy?
       end

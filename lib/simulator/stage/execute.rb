@@ -11,39 +11,43 @@ module Simulator
       def initialize(state)
         @state = state
         @functional_units = [
-          Unit::IntegerUnit.get(state)
+          Unit::IntegerUnit.get(state),
+          # Unit::MemoryUnit.get(state),
+          Unit::FpAddUnit.get(state),
+          Unit::FpMultiplyUnit.get(state),
+          Unit::FpDivideUnit.get(state)
         ]
+        @contention_list = {}
       end
 
       def call
         execute
-        return if busy?
-        return if @functional_unit.nil?
-
-        instruction = @functional_unit.peek
-        write_back_stage = Stage::WriteBack.get(state)
-        return if write_back_stage.busy? || instruction.nil?
-
-        write_back_stage.accept(instruction)
+        send_to_write_back
       end
 
       def execute
-        @functional_units.each(&:execute)
+        @functional_units.each do |unit|
+          instruction = unit.execute
+          next if instruction.nil?
+        end
       end
 
       def accept(instruction)
-        @functional_unit = get_functional_unit(instruction)
-        return nil if busy?
-
-        @functional_unit.accept(instruction)
+        get_functional_unit(instruction).accept(instruction)
       end
 
-      def busy?
-        return true if @functional_unit.nil?
-
-        @functional_unit.busy?
+      def mark_for_contention(functional_unit, instruction)
+        @contention_list[functional_unit] = instruction
       end
 
+      def send_to_write_back
+        @contention_list.each do |functional_unit, instruction|
+          instruction.out_clock_cycles['EX'] = state.clock_cycle
+          write_back_stage = Stage::WriteBack.get(state)
+          write_back_stage.accept(instruction)
+        end
+        @contention_list = {}
+      end
       # rubocop:disable Metrics/LineLength
       def get_functional_unit(instruction)
         case instruction.operation

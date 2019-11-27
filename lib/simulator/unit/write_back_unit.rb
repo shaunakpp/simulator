@@ -12,6 +12,7 @@ module Simulator
 
         instruction = remove
 
+        instruction.out_clock_cycles['WB'] = state.clock_cycle
         return unless instruction.result[:register_write]
         return unless instruction.result[:destination].start_with?('R')
 
@@ -19,6 +20,7 @@ module Simulator
           instruction.result[:destination],
           instruction.result[:value]
         )
+        @clock_cycles_pending -= 1
       end
 
       def accept(instruction)
