@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/simulator.rb'
+
+instructions_file = ARGV[0]
+data_file = ARGV[1]
+registers_file = ARGV[2]
+config_file = ARGV[3]
+output_file = ARGV[4]
+
+Simulator::Base.new(instructions_file, data_file, registers_file, config_file, output_file).run
