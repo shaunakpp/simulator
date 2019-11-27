@@ -43,8 +43,8 @@ module Simulator
 
       def prioritize_instructions
         units = prioritize_contention_units
-        instructions = @contention_list.select { |k,v| units.include?(v) }.keys
-        instructions.sort_by!{ |instruction| instruction.in_clock_cycles['EX'] }
+        instructions = @contention_list.select { |_k, v| units.include?(v) }.keys
+        instructions.sort_by! { |instruction| instruction.in_clock_cycles['EX'] }
         instructions
       end
 
@@ -55,11 +55,11 @@ module Simulator
       def send_to_write_back
         return if @contention_list.empty?
 
-        if @contention_list.keys.count == 1
-          instruction = @contention_list.keys.first
-        else
-          instruction = prioritize_instructions.first
-        end
+        instruction = if @contention_list.keys.count == 1
+                        @contention_list.keys.first
+                      else
+                        prioritize_instructions.first
+                      end
         instruction.out_clock_cycles['EX'] = state.clock_cycle
         @contention_list.delete(instruction)
         write_back_stage = Stage::WriteBack.get(state)
