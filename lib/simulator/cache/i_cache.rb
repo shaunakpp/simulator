@@ -7,7 +7,7 @@ module Simulator
         @get ||= new(state)
       end
       attr_accessor :state, :blocks, :cache_access_time, :memory_access_time
-      attr_accessor :cache_requests, :cache_hits, :delay, :miss_clock_cycle, :hit_clock_cycle
+      attr_accessor :cache_requests, :cache_hits, :clock_cycles_to_burn
 
       def initialize(state)
         @state = state
@@ -15,7 +15,7 @@ module Simulator
         4.times do
           @blocks << [nil] * 4
         end
-        @cache_access_time = state.configuration.d_cache
+        @cache_access_time = state.configuration.i_cache
         @memory_access_time = state.configuration.memory
         @cache_requests = 0
         @cache_hits = 0

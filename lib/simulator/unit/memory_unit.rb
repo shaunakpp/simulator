@@ -9,12 +9,7 @@ module Simulator
 
       def accept(instruction)
         return nil if busy?
-
-        @clock_cycles_pending = if memory_required?(instruction)
-                                  state.configuration.memory
-                                else
-                                  1
-                                end
+        @clock_cycles_pending = 1
         add(instruction)
       end
 
@@ -25,22 +20,30 @@ module Simulator
         # instruction.in_clock_cycles['MEM'] = state.clock_cycle
 
         if memory_required?(instruction)
-          if instruction.result[:memory_write]
-            state.memory.convert_to_binary_and_store(
-              instruction.result[:destination],
-              instruction.result[:value]
-            )
+          cache = Cache::DCache::Manager.get(state)
+          cache.fetch(instruction)
+          @clock_cycles_pending = cache.clock_cycles_to_burn
+          if cache.clock_cycles_burned?
+            if instruction.result[:memory_write]
+              state.memory.convert_to_binary_and_store(
+                instruction.result[:destination],
+                instruction.result[:value]
+              )
+            end
+            remove
+            Stage::Execute.get(state).mark_for_contention(self, instruction)
+            return instruction
           end
-        end
+        else
+          @clock_cycles_pending -= 1
 
-        @clock_cycles_pending -= 1
-
-        unless @clock_cycles_pending.positive?
-          # instruction.out_clock_cycles['MEM'] = state.clock_cycle
-          remove
-          Stage::Execute.get(state).mark_for_contention(self, instruction)
+          unless @clock_cycles_pending.positive?
+            # instruction.out_clock_cycles['MEM'] = state.clock_cycle
+            remove
+            Stage::Execute.get(state).mark_for_contention(self, instruction)
+          end
+          return instruction
         end
-        instruction
       end
 
       def memory_required?(instruction)
