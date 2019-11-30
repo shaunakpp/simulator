@@ -8,6 +8,10 @@ module Simulator
         @offset = offset
         @register = register
       end
+
+      def to_s
+        "#{offset}(#{register})"
+      end
     end
   end
 end

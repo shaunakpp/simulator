@@ -2,14 +2,14 @@
 
 module Simulator
   module Operand
-    class Immediate
-      attr_reader :value
-      def initialize(value)
-        @value = value
+    class Label
+      attr_reader :label
+      def initialize(label)
+        @label = label
       end
 
       def to_s
-        value.to_s
+        label
       end
     end
   end
