@@ -40,11 +40,9 @@ module Simulator
       def busy?
         return false if queue.empty?
 
-        if @pipelined
-          queue.size == clock_cycles_required
-        else
-          return @clock_cycles_pending.to_i.positive?
-        end
+        return @clock_cycles_pending.to_i.positive? unless @pipelined
+        return true if queue.size == clock_cycles_required
+
         false
       end
 
