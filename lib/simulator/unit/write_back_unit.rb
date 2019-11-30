@@ -13,14 +13,22 @@ module Simulator
         instruction = remove
 
         instruction.out_clock_cycles['WB'] = state.clock_cycle
-        return unless instruction.result[:register_write]
-        return unless instruction.result[:destination].start_with?('R')
-
-        state.register_state.convert_to_binary_and_store(
-          instruction.result[:destination],
-          instruction.result[:value]
-        )
+        state.register_state.busy.delete(instruction.operand_1.register)
         @clock_cycles_pending -= 1
+
+        state.output_manager.save(instruction)
+        return if instruction.result.empty?
+
+        if instruction.result[:register_write]
+          if instruction.result[:destination].start_with?('R')
+            state.register_state.convert_to_binary_and_store(
+              instruction.result[:destination],
+              instruction.result[:value]
+            )
+          end
+        end
+        instruction.result = {}
+        instruction
       end
 
       def accept(instruction)

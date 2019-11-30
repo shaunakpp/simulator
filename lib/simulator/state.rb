@@ -3,7 +3,8 @@
 module Simulator
   class State
     attr_accessor :configuration, :instruction_set, :register_state, :memory,
-                  :program_counter, :clock_cycle
+                  :program_counter, :clock_cycle,
+                  :output_manager
     # rubocop:disable Metrics/LineLength
     # rubocop:disable Metrics/ParameterLists
     def initialize(configuration, instruction_set, register_state, memory, program_counter, clock_cycle)
@@ -13,6 +14,7 @@ module Simulator
       @memory = memory
       @program_counter = program_counter
       @clock_cycle = clock_cycle
+      @output_manager = OutputManager.new
     end
     # rubocop:enable Metrics/LineLength
     # rubocop:enable Metrics/ParameterLists

@@ -1,4 +1,4 @@
-FP adder:  4, no
+FP adder:  4, yes
 FP Multiplier:  6, yes
 FP divider: 20, no
 Main memory: 2 

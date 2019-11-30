@@ -32,7 +32,11 @@ module Simulator
           # if memory_unit.busy?
           # TODO: hazard
           # else
-          remove if memory_unit.accept(instruction)
+          if memory_unit.accept(instruction)
+            remove
+          else
+            instruction.hazards['Struct'] = true
+          end
 
           return nil
         end

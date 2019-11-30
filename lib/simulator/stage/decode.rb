@@ -17,6 +17,7 @@ module Simulator
         # TODO: check registers busy or not
         instruction = decode_unit.execute
         return if instruction.nil?
+        return if branch?(instruction)
 
         execute_stage = Execute.get(state)
         execute_stage.accept(instruction)
@@ -24,6 +25,10 @@ module Simulator
 
       def accept(instruction)
         decode_unit.accept(instruction)
+      end
+
+      def branch?(instruction)
+        decode_unit.branch?(instruction)
       end
 
       def busy?

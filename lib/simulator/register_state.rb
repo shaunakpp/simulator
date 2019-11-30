@@ -2,9 +2,10 @@
 
 module Simulator
   class RegisterState
-    attr_accessor :registers
+    attr_accessor :registers, :busy
     def initialize
       @registers = {}
+      @busy = []
     end
 
     def [](key)
@@ -27,6 +28,15 @@ module Simulator
 
     def convert_to_binary_and_store(key, value)
       self[key] = binary(value)
+    end
+
+    def busy?(operand)
+      return false if operand.nil?
+      return false if operand.is_a?(Operand::Immediate)
+      return false if operand.is_a?(Operand::Memory)
+      return false if operand.is_a?(Operand::Label)
+
+      busy.include?(operand.register)
     end
   end
 end

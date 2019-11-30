@@ -11,27 +11,32 @@ module Simulator
         return if busy?
 
         instruction.in_clock_cycles['EX'] = state.clock_cycle
-        @clock_cycles_pending = state.configuration.fp_adder unless @pipelined
+        unless @pipelined
+          @clock_cycles_pending = state.configuration.fp_multiplier
+        end
         add(instruction)
       end
 
       def execute
+        instruction = peek
+        return nil if instruction.nil?
+
         if @pipelined
-          instruction = peek
-          return nil if instruction.nil?
 
           in_time = instruction.in_clock_cycles['EX']
-          if state.clock_cycle - in_time > @clock_cycles_required
+          if state.clock_cycle - in_time >= @clock_cycles_required
             instruction = remove
-            instruction.out_clock_cycles['EX'] = state.clock_cycle
+            Stage::Execute.get(state).mark_for_contention(self, instruction)
             return instruction
           end
         else
           @clock_cycles_pending -= 1
-          remove unless busy?
-          return nil
+          unless @clock_cycles_pending.positive?
+            remove
+            Stage::Execute.get(state).mark_for_contention(self, instruction)
+            return instruction
+          end
         end
-        {}
       end
 
       def busy?

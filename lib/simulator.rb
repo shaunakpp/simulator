@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'zeitwerk'
+require 'pry'
+
 loader = Zeitwerk::Loader.for_gem
 loader.setup # ready!
 
-require 'pry'
 module Simulator
   class Error < StandardError; end
 
@@ -18,26 +19,18 @@ module Simulator
       @state = State.new(@configuration, @instruction_set, @register_state, @memory, 0, 1)
     end
 
-    def test_run
-      @write_back_stage.call
-      @execute_stage.call
-      @decode_stage.call
-      @fetch_stage.call
-      state.clock_cycle += 1
-    end
-
     def run
       @fetch_stage = Stage::Fetch.get(state)
       @decode_stage = Stage::Decode.get(state)
       @execute_stage = Stage::Execute.get(state)
       @write_back_stage = Stage::WriteBack.get(state)
 
-      20.times do
-        test_run
-      end
-
-      instruction_set.instructions.each do |inst|
-        puts "#{inst.operation} #{inst.in_clock_cycles} #{inst.out_clock_cycles}"
+      loop do
+        @write_back_stage.call
+        @execute_stage.call
+        @decode_stage.call
+        @fetch_stage.call
+        state.clock_cycle += 1
       end
     end
   end

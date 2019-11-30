@@ -2,10 +2,10 @@
 
 module Simulator
   module Parser
-    MEMORY_REGEX = /(\d)\((R\d)\)/i.freeze
+    MEMORY_REGEX = /(\d)\((R\d+)\)/i.freeze
     IMMEDIATE_REGEX = /(\d+)/i.freeze
-    INT_REGISTER_REGEX = /(R\d)/i.freeze
-    FP_REGISTER_REGEX = /(F\d)/i.freeze
+    INT_REGISTER_REGEX = /(R\d+)/i.freeze
+    FP_REGISTER_REGEX = /(F\d+)/i.freeze
     LOOP_NAME_REGEX = /([A-Z]+\:)/i.freeze
     class InstructionParser
       attr_reader :file
@@ -24,17 +24,17 @@ module Simulator
 
       def parse
         File.readlines(file).each_with_index do |line, index|
-          inst = parse_instruction(line)
+          inst = parse_instruction(line, index)
           inst.instruction_number = index + 1
           instruction_set.instructions << inst
         end
       end
 
-      def parse_instruction(line)
+      def parse_instruction(line, index)
         if line.match?(LOOP_NAME_REGEX)
           loop_name = line.match(LOOP_NAME_REGEX).captures.first
           line.gsub!(LOOP_NAME_REGEX, '')
-          instruction_set.labels[loop_name] = index
+          instruction_set.labels[loop_name.gsub(':', '')] = index
         end
         line.gsub!(',', '')
         operation, *operands = line.split(' ')
@@ -61,6 +61,8 @@ module Simulator
           when IMMEDIATE_REGEX
             value = operand.match(IMMEDIATE_REGEX).captures.first
             inst.send("operand_#{index + 1}=", Operand::Immediate.new(value))
+          when *instruction_set.labels.keys
+            inst.send("operand_#{index + 1}=", Operand::Label.new(operand))
           else
             raise "Operand not parsed for: #{operand}"
           end

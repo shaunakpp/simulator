@@ -24,6 +24,10 @@ module Simulator
         send_to_write_back
       end
 
+      def busy?
+        @functional_units.any?(&:busy?)
+      end
+
       def execute
         @functional_units.each do |unit|
           instruction = unit.execute
@@ -32,7 +36,8 @@ module Simulator
       end
 
       def accept(instruction)
-        get_functional_unit(instruction).accept(instruction)
+        functional_unit = get_functional_unit(instruction)
+        functional_unit.accept(instruction)
       end
 
       def prioritize_contention_units
@@ -62,8 +67,15 @@ module Simulator
                       end
         instruction.out_clock_cycles['EX'] = state.clock_cycle
         @contention_list.delete(instruction)
+        mark_structural_hazards
         write_back_stage = Stage::WriteBack.get(state)
         write_back_stage.accept(instruction)
+      end
+
+      def mark_structural_hazards
+        @contention_list.keys.each do |instruction|
+          instruction.hazards['Struct'] = true
+        end
       end
 
       # rubocop:disable Metrics/LineLength
