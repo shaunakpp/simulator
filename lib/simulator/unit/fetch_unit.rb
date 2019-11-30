@@ -13,34 +13,42 @@ module Simulator
         return nil if instruction.nil?
         return nil if Stage::Decode.get(state).busy?
 
+        return if Cache::ICache.get(state).busy?
+
         remove
+        return nil if busy?
+
         instruction.out_clock_cycles['IF'] = state.clock_cycle
-        @clock_cycles_pending -= 1
+        state.program_counter += 1
         instruction
       end
 
       def accept
+        return nil if busy?
+
         instruction = fetch_next
         return if instruction.nil?
       end
 
       def fetch_next
-        return nil if busy?
+        i_cache = Cache::ICache.get(state)
 
-        # TODO: implement cache
-        instruction = state.instruction_set.fetch(state.program_counter)
-        return nil if instruction.nil?
+        if i_cache.busy?
+          i_cache.burn_clock_cycle
+          return nil
+        end
+        instruction = i_cache.fetch(state.program_counter)
+
+        return if instruction.nil?
 
         add(instruction)
         instruction.in_clock_cycles['IF'] = state.clock_cycle
-        @clock_cycles_pending = 1
-        state.program_counter += 1
         instruction
       end
 
       def parse_config
-        @clock_cycles_required = 1
-        @clock_cycles_pending = 1
+        @clock_cycles_required = Cache::ICache.get(state).cache_time_required
+        @clock_cycles_pending = state.configuration.i_cache
       end
     end
   end

@@ -25,7 +25,7 @@ module Simulator
       def parse
         File.readlines(file).each_with_index do |line, index|
           inst = parse_instruction(line, index)
-          inst.instruction_number = index + 1
+          inst.instruction_number = index
           instruction_set.instructions << inst
         end
       end

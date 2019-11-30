@@ -36,7 +36,7 @@ module Simulator
 
         unless branch?(instruction)
           state.register_state.busy << instruction.operand_1.register
-          end
+        end
 
         @clock_cycles_pending -= 1
 

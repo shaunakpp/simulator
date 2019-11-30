@@ -18,8 +18,10 @@ module Simulator
         if @halt
           unless stages_busy?
             instruction = fetch_unit.execute
+            return if instruction.nil?
+
             state.output_manager.save(instruction)
-            state.output_manager.print
+            state.output_manager.print(state)
             abort
           end
         end

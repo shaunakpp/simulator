@@ -32,6 +32,7 @@ module Simulator
         @fetch_stage.call
         state.clock_cycle += 1
       end
+      state.output_manager.print(state)
     end
   end
 end

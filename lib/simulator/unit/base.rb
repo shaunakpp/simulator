@@ -19,7 +19,7 @@ module Simulator
         return false if queue.empty?
         return true if queue.size == clock_cycles_required
 
-        @clock_cycles_pending.to_i.positive?
+        @clock_cycles_pending.to_i >= 0
       end
 
       def add(instruction)
