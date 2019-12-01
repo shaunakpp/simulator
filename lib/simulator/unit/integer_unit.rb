@@ -18,10 +18,9 @@ module Simulator
         memory_unit = MemoryUnit.get(state)
         return if peek.nil? && memory_unit.peek.nil?
 
-        # if cycles_elapsed?
         instruction = peek
 
-        memory_unit.execute if memory_unit.peek
+        memory_unit.execute #if memory_unit.peek
         return nil if instruction.nil?
 
         instruction.in_clock_cycles['EX'] = state.clock_cycle
@@ -29,13 +28,11 @@ module Simulator
         if instruction.result.empty?
           instruction_class = instruction.execution_class
           instruction_class.new(instruction, state).execute
-          # if memory_unit.busy?
-          # TODO: hazard
-          # else
-          if memory_unit.accept(instruction)
-            remove
-          else
+          if memory_unit.busy?(instruction)
             instruction.hazards['Struct'] = true
+          else
+            memory_unit.accept(instruction)
+            remove
           end
 
           return nil

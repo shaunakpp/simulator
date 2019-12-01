@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module Simulator
   module Cache
     class DCache
-
       attr_accessor :sets
       def initialize
         @sets = []
@@ -10,13 +11,14 @@ module Simulator
       end
 
       def find(address)
-        index = address & 0b10000
+        index =  0b10000 & address
         index = index >> 4
         @sets[index]
       end
 
       def base_address(address)
-        (address >> 2) << 2
+        base = (address >> 4)
+        base << 4
       end
 
       def address_present?(address)
@@ -40,13 +42,13 @@ module Simulator
         base = base_address(address)
         block =
           if address_present?(address)
-            set.find(address)
-          elsif blocks_available?(base)
+            set.find(base)
+          elsif blocks_available?(address)
             set.find_empty
           else
             set.lru_block
           end
-        block.address = address
+        block.address = base
         block.dirty = store
         set.toggle(block)
       end

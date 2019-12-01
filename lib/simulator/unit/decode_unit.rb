@@ -11,6 +11,7 @@ module Simulator
         return if peek.nil?
 
         instruction = peek
+
         instruction.in_clock_cycles['ID'] = state.clock_cycle
 
         if instruction.operation == 'HLT'
@@ -43,7 +44,7 @@ module Simulator
         instruction
       end
 
-      # rubocop:disable AbcSize
+      # rubocop:disable Metrics/AbcSize
       def check_hazards(instruction)
         if state.register_state.busy?(instruction.operand_1)
           instruction.hazards['WAW'] = true
@@ -64,7 +65,7 @@ module Simulator
 
         true
       end
-      # rubocop:enable AbcSize
+      # rubocop:enable Metrics/AbcSize
 
       def accept(instruction)
         return nil if busy?

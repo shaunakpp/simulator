@@ -49,7 +49,6 @@ module Simulator
 
       def stages_busy?
         stages = [
-          self,
           Stage::Decode.get(state),
           Stage::Execute.get(state),
           Stage::WriteBack.get(state)

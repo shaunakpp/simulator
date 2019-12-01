@@ -33,8 +33,12 @@ module Simulator
       puts @output.render(:ascii)
       puts "\n"
       i_cache = Cache::ICache.get(state)
-      puts "Total number of access requests for instruction cache: #{i_cache.cache_requests}"
-      puts "Number of instruction cache hits: #{i_cache.cache_hits}"
+      puts "Total number of access requests for instruction cache: #{i_cache.cache_stats[:requests]}"
+      puts "Number of instruction cache hits: #{i_cache.cache_stats[:hits]}"
+
+      d_cache = Cache::DCache::Manager.get(state)
+      puts "Total number of access requests for data cache: #{d_cache.cache_stats[:requests]}"
+      puts "Number of data cache hits: #{d_cache.cache_stats[:hits]}"
     end
   end
 end

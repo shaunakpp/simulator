@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 module Simulator
   module Cache
     class DCache
       class Set
-
         attr_accessor :blocks, :lru
         def initialize
           @blocks = []
@@ -12,7 +13,7 @@ module Simulator
         end
 
         def toggle(block)
-          lru = blocks.first == block ? 1 : 0
+          @lru = blocks.first == block ? 1 : 0
         end
 
         def free?(index)
@@ -32,13 +33,11 @@ module Simulator
         end
 
         def find(address)
-          return nil unless address_present?
           @blocks.find { |block| block.address == address }
         end
 
         def find_empty
-          return nil unless blocks_available?
-          @blocks.find { |block| block.address == nil }
+          @blocks.find { |block| block.free? }
         end
 
         def lru_block

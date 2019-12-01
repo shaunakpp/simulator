@@ -14,7 +14,7 @@ module Simulator
         value = instruction.operand_2.offset.to_i + state.register_state.convert_to_int(instruction.operand_2.register)
         instruction.result = {
           destination: instruction.operand_1.register,
-          value: state.memory.convert_to_int(value),
+          value: value,
           memory_write: false,
           register_write: true
         }

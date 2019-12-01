@@ -13,10 +13,7 @@ module Simulator
         return nil if instruction.nil?
         return nil if Stage::Decode.get(state).busy?
 
-        return if Cache::ICache.get(state).busy?
-
         remove
-        return nil if busy?
 
         instruction.out_clock_cycles['IF'] = state.clock_cycle
         state.program_counter += 1
@@ -32,11 +29,8 @@ module Simulator
 
       def fetch_next
         i_cache = Cache::ICache.get(state)
+        i_cache.burn_clock_cycle if i_cache.busy?
 
-        if i_cache.busy?
-          i_cache.burn_clock_cycle
-          return nil
-        end
         instruction = i_cache.fetch(state.program_counter)
 
         return if instruction.nil?

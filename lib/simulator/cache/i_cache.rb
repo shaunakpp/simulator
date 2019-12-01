@@ -19,7 +19,7 @@ module Simulator
         @memory_access_time = state.configuration.memory
         @cache_requests = 0
         @cache_hits = 0
-        @clock_cycles_to_burn = nil
+        @clock_cycles_to_burn = 0
       end
 
       def hit?(program_counter)
@@ -32,6 +32,7 @@ module Simulator
         if hit?(program_counter)
           @cache_requests += 1
           @cache_hits += 1
+          @clock_cycles_to_burn = cache_access_time
         else
           @cache_requests += 1
           index = find_free_block_index
@@ -39,6 +40,8 @@ module Simulator
           4.times do |i|
             blocks[index][i] = instructions[i]
           end
+          @clock_cycles_to_burn = cache_time_required - 1
+          return nil
         end
         state.instruction_set.fetch(program_counter)
       end
@@ -62,10 +65,6 @@ module Simulator
       end
 
       def busy?
-        if @clock_cycles_to_burn.nil?
-          @clock_cycles_to_burn = clock_cycles_required - 1
-          return true
-        end
         @clock_cycles_to_burn > 0
       end
 
@@ -77,6 +76,14 @@ module Simulator
         (0...4).to_a.map do |i|
           state.instruction_set.fetch(program_counter + i)&.instruction_number
         end
+      end
+
+      def cache_stats
+        diff = @cache_requests - @cache_hits
+        {
+          requests: @cache_requests - diff,
+          hits: @cache_hits - diff
+        }
       end
     end
   end

@@ -8,9 +8,26 @@ module Simulator
       end
 
       def accept(instruction)
-        return nil if busy?
-        @clock_cycles_pending = 1
+        return nil if busy?(instruction)
+
+        if memory_required?(instruction)
+          cache = Cache::DCache::Manager.get(state)
+          @clock_cycles_pending = cache.clock_cycles_to_burn
+        else
+          @clock_cycles_pending = 1
+        end
         add(instruction)
+      end
+
+      def busy?(instruction = nil)
+        return super() if instruction.nil?
+
+        if memory_required?(instruction)
+          cache = Cache::DCache::Manager.get(state)
+          return !cache.clock_cycles_burned?
+        else
+          super()
+        end
       end
 
       def execute
@@ -19,11 +36,13 @@ module Simulator
         instruction = peek
         # instruction.in_clock_cycles['MEM'] = state.clock_cycle
 
+        # binding.pry if instruction.result[:value] == 264 && state.clock_cycle == 16
+
         if memory_required?(instruction)
           cache = Cache::DCache::Manager.get(state)
           cache.fetch(instruction)
           @clock_cycles_pending = cache.clock_cycles_to_burn
-          if cache.clock_cycles_burned?
+          if cache.check!
             if instruction.result[:memory_write]
               state.memory.convert_to_binary_and_store(
                 instruction.result[:destination],
@@ -34,6 +53,7 @@ module Simulator
             Stage::Execute.get(state).mark_for_contention(self, instruction)
             return instruction
           end
+          return nil
         else
           @clock_cycles_pending -= 1
 
@@ -51,7 +71,7 @@ module Simulator
       end
 
       def parse_config
-        @clock_cycles_required = state.configuration.memory
+        @clock_cycles_required = 1
         @clock_cycles_pending = 1
         @pipelined = false
       end
