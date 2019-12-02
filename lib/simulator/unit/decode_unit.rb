@@ -47,19 +47,19 @@ module Simulator
       # rubocop:disable Metrics/AbcSize
       def check_hazards(instruction)
         if state.register_state.busy?(instruction.operand_1)
-          instruction.hazards['WAW'] = true
+          instruction.hazards['WAW'] = 'Y'
           return false
         end
 
         if state.register_state.busy?(instruction.operand_2) ||
            state.register_state.busy?(instruction.operand_3)
-          instruction.hazards['RAW'] = true
+          instruction.hazards['RAW'] = 'Y'
           return false
         end
 
         execute_stage = Stage::Execute.get(state)
         if execute_stage.get_functional_unit(instruction).busy?
-          instruction.hazards['Struct'] = true
+          instruction.hazards['Struct'] = 'Y'
           return false
         end
 
@@ -92,7 +92,11 @@ module Simulator
           program_counter = state.instruction_set.labels[label]
           state.program_counter = program_counter
           state.register_state.busy.delete(instruction.operand_1.register)
-          Stage::Fetch.get(state).flush
+          fetch_stage = Stage::Fetch.get(state)
+          if fetch_stage.peek
+            state.output_manager.save(fetch_stage.peek)
+          end
+          fetch_stage.flush
           return true
         end
         false

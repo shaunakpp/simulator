@@ -20,7 +20,7 @@ module Simulator
 
         instruction = peek
 
-        memory_unit.execute #if memory_unit.peek
+        memory_unit.execute if memory_unit.peek
         return nil if instruction.nil?
 
         instruction.in_clock_cycles['EX'] = state.clock_cycle
@@ -29,7 +29,7 @@ module Simulator
           instruction_class = instruction.execution_class
           instruction_class.new(instruction, state).execute
           if memory_unit.busy?(instruction)
-            instruction.hazards['Struct'] = true
+            instruction.hazards['Struct'] = 'Y'
           else
             memory_unit.accept(instruction)
             remove

@@ -4,14 +4,15 @@ module Simulator
   class InstructionSet
     class Instruction
       attr_accessor :operation, :operand_1, :operand_2, :operand_3,
-                    :instruction_number
+                    :instruction_number, :label
       attr_accessor :in_clock_cycles, :out_clock_cycles, :result, :hazards
       def initialize(operation)
         @operation = operation
         @in_clock_cycles = { 'IF' => nil, 'ID' => nil, 'EX' => nil, 'WB' => nil }
         @out_clock_cycles = { 'IF' => nil, 'ID' => nil, 'EX' => nil, 'WB' => nil }
         @result = {}
-        @hazards = { 'RAW' => false, 'WAW' => false, 'WAR' => false, 'Struct' => false }
+        @hazards = { 'RAW' => 'N', 'WAW' => 'N', 'WAR' => 'N', 'Struct' => 'N' }
+        @label
       end
 
       def execution_class
@@ -20,7 +21,12 @@ module Simulator
       end
 
       def to_s
-        str = operation
+        if label.nil?
+          str = operation
+        else
+          str = label + operation
+        end
+
         unless operand_1.nil?
           str += ' '
           str += operand_1.to_s

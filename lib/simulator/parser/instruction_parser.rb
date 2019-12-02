@@ -31,6 +31,7 @@ module Simulator
       end
 
       def parse_instruction(line, index)
+        loop_name = nil
         if line.match?(LOOP_NAME_REGEX)
           loop_name = line.match(LOOP_NAME_REGEX).captures.first
           line.gsub!(LOOP_NAME_REGEX, '')
@@ -40,6 +41,7 @@ module Simulator
         operation, *operands = line.split(' ')
 
         inst = InstructionSet::Instruction.new(operation)
+        inst.label = loop_name
         fill_operands(inst, operands)
         inst
       end

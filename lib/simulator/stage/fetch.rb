@@ -61,6 +61,10 @@ module Simulator
         fetch_unit.accept
       end
 
+      def peek
+        fetch_unit.peek
+      end
+
       def busy?
         fetch_unit.busy?
       end

@@ -25,27 +25,48 @@ module Simulator
           if request.instruction.nil?
 
             request.instruction = instruction
-            request.clock_cycle = state.clock_cycle
-
-            if %w[S.D SW].include?(instruction.operation)
-              update_clock_cycles_for_store(address)
-            else
-              update_clock_cycles_for_load(address)
+            if %w[L.D S.D].include?(instruction.operation)
+              request.double = true
             end
-            @cache_requests += 1
+            request.clock_cycle = state.clock_cycle
+            update_clock_cycles_for_address(address)
           else
             unless request.stats_updated
-              @cache_requests += 1
-              request.stats_updated = true
-              @cache_hits += 1 if cache.address_present?(address)
+              update_stats_for_address(address)
             end
+          end
 
-            cache.update(address, %w[S.D SW].include?(instruction.operation))
+          cache.update(address, %w[S.D SW].include?(instruction.operation))
+
+          if request.double
+            if request.double_instruction_pending
+              update_clock_cycles_for_address(address + 4)
+              request.double_instruction_pending = false
+            elsif request.double_stats_pending
+              update_stats_for_address(address + 4)
+              request.double_stats_pending = false
+            end
+            cache.update(address + 4, %w[S.D SW].include?(instruction.operation))
+          end
+        end
+
+        def update_stats_for_address(address)
+          @cache_requests += 1
+          request.stats_updated = true
+          @cache_hits += 1 if request.hit[address]
+        end
+
+        def update_clock_cycles_for_address(address)
+          if %w[S.D SW].include?(request.instruction.operation)
+            update_clock_cycles_for_store(address)
+          else
+            update_clock_cycles_for_load(address)
           end
         end
 
         def update_clock_cycles_for_store(address)
           if cache.address_present?(address) || cache.blocks_available?(address)
+            request.hit[address] = true
             return request.clock_cycles_to_burn += cache_access_time
           end
 
@@ -53,11 +74,13 @@ module Simulator
             return request.clock_cycles_to_burn += cache_miss_penalty
           end
 
+          request.hit[address] = true
           request.clock_cycles_to_burn += cache_access_time
         end
 
         def update_clock_cycles_for_load(address)
           if cache.address_present?(address)
+            request.hit[address] = true
             return request.clock_cycles_to_burn += cache_access_time
           end
 
@@ -65,6 +88,7 @@ module Simulator
             return request.clock_cycles_to_burn += cache_miss_penalty
           end
 
+          request.hit[address] = true
           request.clock_cycles_to_burn += cache_access_time
         end
 

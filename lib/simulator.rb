@@ -11,12 +11,12 @@ module Simulator
 
   class Base
     attr_reader :configuration, :instruction_set, :register_state, :memory, :state
-    def initialize(instructions_file, data_file, registers_file, config_file, _result_file)
+    def initialize(instructions_file, data_file, registers_file, config_file, result_file)
       @instruction_set = Parser::InstructionParser.parse(instructions_file).instruction_set
       @configuration = Parser::ConfigurationParser.parse(config_file).configuration
       @register_state = Parser::RegisterParser.parse(registers_file).register_state
       @memory = Parser::DataParser.parse(data_file).memory
-      @state = State.new(@configuration, @instruction_set, @register_state, @memory, 0, 1)
+      @state = State.new(@configuration, @instruction_set, @register_state, @memory, 0, 1, result_file)
     end
 
     def run

@@ -74,7 +74,7 @@ module Simulator
 
       def mark_structural_hazards
         @contention_list.keys.each do |instruction|
-          instruction.hazards['Struct'] = true
+          instruction.hazards['Struct'] = 'Y'
         end
       end
 
