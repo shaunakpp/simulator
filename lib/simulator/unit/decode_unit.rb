@@ -93,9 +93,7 @@ module Simulator
           state.program_counter = program_counter
           state.register_state.busy.delete(instruction.operand_1.register)
           fetch_stage = Stage::Fetch.get(state)
-          if fetch_stage.peek
-            state.output_manager.save(fetch_stage.peek)
-          end
+          state.output_manager.save(fetch_stage.peek) if fetch_stage.peek
           fetch_stage.flush
           return true
         end

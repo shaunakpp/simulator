@@ -32,17 +32,17 @@ module Simulator
     def i_cache_stats(state)
       i_cache = Cache::ICache.get(state)
       str = <<~STR
-            Total number of access requests for instruction cache: #{i_cache.cache_stats[:requests]}
-            Number of instruction cache hits: #{i_cache.cache_stats[:hits]}
-          STR
+        Total number of access requests for instruction cache: #{i_cache.cache_stats[:requests]}
+        Number of instruction cache hits: #{i_cache.cache_stats[:hits]}
+      STR
       str
     end
 
     def d_cache_stats(state)
       d_cache = Cache::DCache::Manager.get(state)
       str = <<~STR
-           Total number of access requests for data cache: #{d_cache.cache_stats[:requests]}
-           Number of data cache hits: #{d_cache.cache_stats[:hits]}
+        Total number of access requests for data cache: #{d_cache.cache_stats[:requests]}
+        Number of data cache hits: #{d_cache.cache_stats[:hits]}
       STR
       str
     end

@@ -25,15 +25,11 @@ module Simulator
           if request.instruction.nil?
 
             request.instruction = instruction
-            if %w[L.D S.D].include?(instruction.operation)
-              request.double = true
-            end
+            request.double = true if %w[L.D S.D].include?(instruction.operation)
             request.clock_cycle = state.clock_cycle
             update_clock_cycles_for_address(address)
           else
-            unless request.stats_updated
-              update_stats_for_address(address)
-            end
+            update_stats_for_address(address) unless request.stats_updated
           end
 
           cache.update(address, %w[S.D SW].include?(instruction.operation))

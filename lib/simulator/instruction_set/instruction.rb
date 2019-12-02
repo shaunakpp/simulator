@@ -21,11 +21,11 @@ module Simulator
       end
 
       def to_s
-        if label.nil?
-          str = operation
-        else
-          str = label + operation
-        end
+        str = if label.nil?
+                operation
+              else
+                label + operation
+              end
 
         unless operand_1.nil?
           str += ' '

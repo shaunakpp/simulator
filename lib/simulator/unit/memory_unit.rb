@@ -36,8 +36,6 @@ module Simulator
         instruction = peek
         # instruction.in_clock_cycles['MEM'] = state.clock_cycle
 
-        # binding.pry if instruction.result[:value] == 264 && state.clock_cycle == 16
-
         if memory_required?(instruction)
           cache = Cache::DCache::Manager.get(state)
           cache.fetch(instruction)

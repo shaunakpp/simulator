@@ -11,6 +11,7 @@ module Simulator
         accept if peek.nil?
         instruction = peek
         return nil if instruction.nil?
+
         instruction.out_clock_cycles['IF'] = state.clock_cycle
         return nil if Stage::Decode.get(state).busy?
 

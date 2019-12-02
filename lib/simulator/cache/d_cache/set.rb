@@ -37,7 +37,7 @@ module Simulator
         end
 
         def find_empty
-          @blocks.find { |block| block.free? }
+          @blocks.find(&:free?)
         end
 
         def lru_block
