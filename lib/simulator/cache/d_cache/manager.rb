@@ -61,17 +61,17 @@ module Simulator
         end
 
         def update_clock_cycles_for_store(address)
-          if cache.address_present?(address) || cache.blocks_available?(address)
+          if cache.address_present?(address)
             request.hit[address] = true
             return request.clock_cycles_to_burn += cache_access_time
           end
 
-          if cache.lru_dirty?
-            return request.clock_cycles_to_burn += cache_miss_penalty
+          if cache.blocks_available?(address) || cache.lru_dirty?
+            return request.clock_cycles_to_burn += cache_miss_penalty + cache_access_time
           end
 
           request.hit[address] = true
-          request.clock_cycles_to_burn += cache_access_time
+          request.clock_cycles_to_burn += 2 * cache_access_time
         end
 
         def update_clock_cycles_for_load(address)
