@@ -81,6 +81,7 @@ module Simulator
             block = set.find(base)
             if block.dirty
               return request.clock_cycles_to_burn += cache_miss_penalty
+              block.dirty = false
             end
             request.hit[address] = true
             return request.clock_cycles_to_burn += cache_access_time
