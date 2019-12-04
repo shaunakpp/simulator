@@ -27,15 +27,13 @@ module Simulator
         end
 
         if @flush
-          instruction = fetch_unit.peek
+          instruction = fetch_unit.peek || fetch_unit.fetch_next
           if instruction
             instruction.out_clock_cycles['IF'] = state.clock_cycle
             fetch_unit.queue = []
             @flush = false
             state.program_counter = @branch_pc
             state.output_manager.save(instruction)
-          else
-            fetch_unit.fetch_next
           end
           return
         end

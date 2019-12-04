@@ -22,8 +22,8 @@ module Simulator
 
       def busy?(instruction = nil)
         return super() if instruction.nil?
-
-        if memory_required?(instruction)
+        unit_busy = super()
+        if !unit_busy && memory_required?(instruction)
           cache = Cache::DCache::Manager.get(state)
           return !cache.clock_cycles_burned?
         else
