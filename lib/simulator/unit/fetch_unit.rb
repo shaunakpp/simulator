@@ -16,7 +16,7 @@ module Simulator
         return nil if Stage::Decode.get(state).busy?
 
         remove
-
+        state.memory.busy = false
         state.program_counter += 1
         instruction
       end
@@ -33,8 +33,7 @@ module Simulator
         i_cache.burn_clock_cycle if i_cache.busy?
 
         instruction = i_cache.fetch(state.program_counter)
-
-        return if instruction.nil?
+        return nil if instruction.nil?
 
         add(instruction)
         instruction.in_clock_cycles['IF'] = state.clock_cycle

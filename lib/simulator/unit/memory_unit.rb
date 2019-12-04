@@ -16,6 +16,7 @@ module Simulator
         else
           @clock_cycles_pending = 1
         end
+        # instruction.in_clock_cycles['MEM'] = state.clock_cycle
         add(instruction)
       end
 
@@ -34,12 +35,16 @@ module Simulator
         return if peek.nil?
 
         instruction = peek
-        # instruction.in_clock_cycles['MEM'] = state.clock_cycle
 
         if memory_required?(instruction)
           cache = Cache::DCache::Manager.get(state)
           cache.fetch(instruction)
           @clock_cycles_pending = cache.clock_cycles_to_burn
+          if  cache.clock_cycles_to_burn > state.configuration.d_cache
+            if state.memory.busy?
+              cache.request.clock_cycles_to_burn += 1
+            end
+          end
           if cache.check!
             if instruction.result[:memory_write]
               state.memory.convert_to_binary_and_store(

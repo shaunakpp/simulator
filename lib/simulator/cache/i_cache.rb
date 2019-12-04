@@ -28,13 +28,13 @@ module Simulator
 
       def fetch(program_counter)
         return nil if busy?
+        @cache_requests += 1
 
         if hit?(program_counter)
-          @cache_requests += 1
           @cache_hits += 1
           @clock_cycles_to_burn = cache_access_time
         else
-          @cache_requests += 1
+          state.memory.busy = true
           index = find_free_block_index
           instructions = find_next_set_of_instructions(program_counter)
           4.times do |i|

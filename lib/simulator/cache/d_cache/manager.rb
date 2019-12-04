@@ -100,7 +100,7 @@ module Simulator
         def clock_cycles_burned?
           return true if request.clock_cycle.nil?
 
-          state.clock_cycle - request.clock_cycle == clock_cycles_to_burn
+          state.clock_cycle - request.clock_cycle + 1 == clock_cycles_to_burn
         end
 
         def cache_miss_penalty

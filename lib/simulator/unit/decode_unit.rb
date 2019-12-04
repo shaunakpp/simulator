@@ -19,7 +19,7 @@ module Simulator
           state.output_manager.save(instruction)
           remove
           fetch_stage = Stage::Fetch.get(state)
-          fetch_stage.flush
+          fetch_stage.flush(state.program_counter)
           fetch_stage.halt
           return nil
         end
@@ -90,11 +90,9 @@ module Simulator
         end
         if branch_taken
           program_counter = state.instruction_set.labels[label]
-          state.program_counter = program_counter
           state.register_state.busy.delete(instruction.operand_1.register)
           fetch_stage = Stage::Fetch.get(state)
-          state.output_manager.save(fetch_stage.peek) if fetch_stage.peek
-          fetch_stage.flush
+          fetch_stage.flush(program_counter)
           return true
         end
         false

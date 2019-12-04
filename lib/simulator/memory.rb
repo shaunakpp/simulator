@@ -2,9 +2,11 @@
 
 module Simulator
   class Memory
-    attr_accessor :data
+    attr_accessor :data, :busy
+
     def initialize
       @data = {}
+      @busy = false
     end
 
     def [](key)
@@ -27,6 +29,10 @@ module Simulator
 
     def convert_to_binary_and_store(key, value)
       self[key] = binary(value)
+    end
+
+    def busy?
+      @busy
     end
   end
 end

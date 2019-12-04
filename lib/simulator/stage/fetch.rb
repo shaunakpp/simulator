@@ -27,7 +27,16 @@ module Simulator
         end
 
         if @flush
-          @flush = false
+          instruction = fetch_unit.peek
+          if instruction
+            instruction.out_clock_cycles['IF'] = state.clock_cycle
+            fetch_unit.queue = []
+            @flush = false
+            state.program_counter = @branch_pc
+            state.output_manager.save(instruction)
+          else
+            fetch_unit.fetch_next
+          end
           return
         end
 
@@ -38,8 +47,8 @@ module Simulator
         decode.accept(instruction)
       end
 
-      def flush
-        @fetch_unit.queue = []
+      def flush(branch_program_counter)
+        @branch_pc = branch_program_counter
         @flush = true
       end
 

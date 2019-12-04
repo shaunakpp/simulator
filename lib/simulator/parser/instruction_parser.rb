@@ -33,14 +33,14 @@ module Simulator
       def parse_instruction(line, index)
         loop_name = nil
         if line.match?(LOOP_NAME_REGEX)
-          loop_name = line.match(LOOP_NAME_REGEX).captures.first
+          loop_name = line.match(LOOP_NAME_REGEX).captures.first.upcase
           line.gsub!(LOOP_NAME_REGEX, '')
           instruction_set.labels[loop_name.gsub(':', '')] = index
         end
         line.gsub!(',', '')
         operation, *operands = line.split(' ')
 
-        inst = InstructionSet::Instruction.new(operation)
+        inst = InstructionSet::Instruction.new(operation.upcase)
         inst.label = loop_name
         fill_operands(inst, operands)
         inst
@@ -53,18 +53,18 @@ module Simulator
           case operand
           when MEMORY_REGEX
             offset, register = operand.match(MEMORY_REGEX).captures
-            inst.send("operand_#{index + 1}=", Operand::Memory.new(offset, register))
+            inst.send("operand_#{index + 1}=", Operand::Memory.new(offset, register.upcase))
           when INT_REGISTER_REGEX
             register = operand.match(INT_REGISTER_REGEX).captures.first
-            inst.send("operand_#{index + 1}=", Operand::Register.new(register))
+            inst.send("operand_#{index + 1}=", Operand::Register.new(register.upcase))
           when FP_REGISTER_REGEX
             register = operand.match(FP_REGISTER_REGEX).captures.first
-            inst.send("operand_#{index + 1}=", Operand::Register.new(register))
+            inst.send("operand_#{index + 1}=", Operand::Register.new(register.upcase))
           when IMMEDIATE_REGEX
             value = operand.match(IMMEDIATE_REGEX).captures.first
             inst.send("operand_#{index + 1}=", Operand::Immediate.new(value))
           when *instruction_set.labels.keys
-            inst.send("operand_#{index + 1}=", Operand::Label.new(operand))
+            inst.send("operand_#{index + 1}=", Operand::Label.new(operand.upcase))
           else
             raise "Operand not parsed for: #{operand}"
           end
