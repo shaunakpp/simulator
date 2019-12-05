@@ -14,11 +14,10 @@ module Simulator
     end
 
     def save(instruction)
-      # @raw_output << instruction
       @raw_output << [
         instruction.to_s,
-        *instruction.out_clock_cycles.values.map(&:to_s),
-        *instruction.hazards.values.map(&:to_s)
+        *instruction.stage_sequence,
+        *instruction.hazards_sequence
       ]
     end
 
@@ -47,25 +46,18 @@ module Simulator
       str
     end
 
-    def print(state)
+    # rubocop:disable Metrics/LineLength
+    def build_output(state)
       build_table
+      "#{@output.render(:basic)}\n\n#{i_cache_stats(state)}\n#{d_cache_stats(state)}"
+    end
+    # rubocop:enable Metrics/LineLength
+
+    def print(state)
+      op = build_output(state)
+      puts op
       f = File.open(result_file, 'w')
-
-      puts @output.render(:basic)
-      f.puts @output.render(:basic)
-
-      puts "\n"
-      f.puts "\n"
-
-      puts i_cache_stats(state)
-      f.puts i_cache_stats(state)
-
-      puts "\n"
-      f.puts "\n"
-
-      puts d_cache_stats(state)
-      f.puts d_cache_stats(state)
-
+      f.puts op
       f.close
     end
   end

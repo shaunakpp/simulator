@@ -41,6 +41,19 @@ module Simulator
         end
         str
       end
+
+      def stage_sequence
+        [
+          out_clock_cycles['IF'].to_s,
+          out_clock_cycles['ID'].to_s,
+          out_clock_cycles['EX'].to_s,
+          out_clock_cycles['WB'].to_s
+        ]
+      end
+
+      def hazards_sequence
+        [hazards['RAW'], hazards['WAR'], hazards['WAW'], hazards['Struct']]
+      end
     end
   end
 end

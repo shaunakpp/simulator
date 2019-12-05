@@ -21,7 +21,7 @@ module Simulator
         end
 
         def fetch(instruction)
-          address = instruction.result[:value]
+          address = instruction.result[:address]
           if request.instruction.nil?
 
             request.instruction = instruction
