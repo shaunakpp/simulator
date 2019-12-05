@@ -76,13 +76,13 @@ module Simulator
 
         def update_clock_cycles_for_load(address)
           if cache.address_present?(address)
-            set = cache.find(address)
-            base = cache.base_address(address)
-            block = set.find(base)
-            if block.dirty
-              return request.clock_cycles_to_burn += cache_miss_penalty
-              block.dirty = false
-            end
+            # set = cache.find(address)
+            # base = cache.base_address(address)
+            # block = set.find(base)
+            # if block.dirty
+            #   return request.clock_cycles_to_burn += cache_miss_penalty
+            #   block.dirty = false
+            # end
             request.hit[address] = true
             return request.clock_cycles_to_burn += cache_access_time
           end
