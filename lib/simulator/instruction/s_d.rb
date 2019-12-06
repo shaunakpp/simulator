@@ -13,7 +13,7 @@ module Simulator
         validate
         value = instruction.operand_2.offset.to_i + state.register_state.convert_to_int(instruction.operand_2.register)
         memory_location = instruction.operand_2.offset.to_i + state.register_state.convert_to_int(instruction.operand_2.register)
-        instruction.result = { destination: memory_location, address: value,  value: value, memory_write: true, register_write: false }
+        instruction.result = { destination: memory_location, address: value, value: value, memory_write: true, register_write: false }
       end
 
       def validate

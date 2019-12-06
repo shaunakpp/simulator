@@ -22,6 +22,7 @@ module Simulator
 
       def busy?(instruction = nil)
         return super() if instruction.nil?
+
         unit_busy = super()
         if !unit_busy && memory_required?(instruction)
           cache = Cache::DCache::Manager.get(state)
@@ -41,9 +42,7 @@ module Simulator
           cache.fetch(instruction)
           @clock_cycles_pending = cache.clock_cycles_to_burn
           if  cache.clock_cycles_to_burn > state.configuration.d_cache
-            if state.memory.busy?
-              cache.request.clock_cycles_to_burn += 1
-            end
+            cache.request.clock_cycles_to_burn += 1 if state.memory.busy?
           end
           if cache.check!
             if instruction.result[:memory_write]

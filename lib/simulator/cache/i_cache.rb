@@ -28,6 +28,7 @@ module Simulator
 
       def fetch(program_counter)
         return nil if busy?
+
         @cache_requests += 1
 
         if hit?(program_counter)
