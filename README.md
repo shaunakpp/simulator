@@ -4,11 +4,15 @@ MIPS Simulator for CMSC 611 by Shaunak Pagnis.
 
 ## Installation
 
-Check the ruby vesion you have installed on your machine by running 
+You can skip to [Installing Project](#installing-project) if your machine has Ruby 2.6 installed.
+
+### Installing Ruby
+
+Check the ruby version you have installed on your machine by running:
 
 `ruby -v`
 
-if it is below `2.6`, please install ruby 2.6 by running the following commands:
+If it is below `2.6`, please install ruby 2.6 by running the following commands:
 
 
 `gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB`
@@ -30,7 +34,9 @@ Once that is completed, you can now install correct version of Ruby by running:
  and
 
 `rvm use ruby-2.6.4`
- 
+
+### Installing Project
+
 Now that you have correct ruby installed we need to install dependencies for this project and generate executables.
 This can be done by following the below steps:
 
