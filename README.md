@@ -37,7 +37,7 @@ Once that is completed, you can now install correct version of Ruby by running:
 
 ### Installing Project
 
-Now that you have correct ruby installed we need to install dependencies for this project and generate executables.
+We need to install dependencies for this project and generate executables.
 This can be done by following the below steps:
 
 * Run `gem install bundler`
