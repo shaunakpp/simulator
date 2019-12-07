@@ -6,7 +6,7 @@ SUB.D F5, F7, F1 18 19 23 24 N   N   N   N
 MUL.D F6, F1, F5 24 25 31 32 N   N   N   N     
 ADD.D F7, F2, F6 25 32 36 37 Y   N   N   N     
 ADD.D F6, F1, F7 32 37 41 42 Y   N   N   N     
-S.D F6, 0(R8)    37 42 51 52 N   Y   N   N     
+S.D F6, 0(R8)    37 42 51 52 N   N   Y   N     
 DADDI R4, R4, 4  43 44 52 53 N   N   N   Y     
 DADDI R5, R5, 4  44 51 53 54 N   N   N   Y     
 DADDI R8, R8, 8  51 52 54 55 N   N   N   N     
@@ -20,12 +20,12 @@ SUB.D F5, F7, F1 67 68 72 73 N   N   N   N
 MUL.D F6, F1, F5 68 73 79 80 Y   N   N   N     
 ADD.D F7, F2, F6 73 80 84 85 Y   N   N   N     
 ADD.D F6, F1, F7 80 85 89 90 Y   N   N   N     
-S.D F6, 0(R8)    85 90 93 94 N   Y   N   N     
+S.D F6, 0(R8)    85 90 93 94 N   N   Y   N     
 DADDI R4, R4, 4  90 91 94 95 N   N   N   Y     
 DADDI R5, R5, 4  91 93 95 96 N   N   N   Y     
 DADDI R8, R8, 8  93 94 96 97 N   N   N   N     
 DSUB R1, R1, R2  94 95 97 98 N   N   N   N     
-BNE R1, R3, GG   95 98       N   Y   N   N     
+BNE R1, R3, GG   95 98       N   N   Y   N     
 HLT              98 99       N   N   N   N     
 HLT              99          N   N   N   N     
 

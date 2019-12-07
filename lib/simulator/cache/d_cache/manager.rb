@@ -32,7 +32,7 @@ module Simulator
             update_stats_for_address(address) unless request.stats_updated
           end
 
-          cache.update(address, %w[S.D SW].include?(instruction.operation))
+          update_cache(address, %w[S.D SW].include?(instruction.operation))
 
           if request.double
             if request.double_instruction_pending
@@ -42,8 +42,24 @@ module Simulator
               update_stats_for_address(address + 4)
               request.double_stats_pending = false
             end
-            cache.update(address + 4, %w[S.D SW].include?(instruction.operation))
+            update_cache(address + 4, %w[S.D SW].include?(instruction.operation))
           end
+        end
+
+        def update_cache(address, store)
+          set = cache.find(address)
+          base = cache.base_address(address)
+          block =
+            if set.address_present?(base)
+              set.find(base)
+            elsif set.blocks_available?
+              set.find_empty
+            else
+              set.lru_block
+            end
+          block.address = base
+          block.dirty = store
+          set.toggle(block)
         end
 
         def update_stats_for_address(address)
@@ -61,12 +77,14 @@ module Simulator
         end
 
         def update_clock_cycles_for_store(address)
-          if cache.address_present?(address)
+          set = cache.find(address)
+          base = cache.base_address(address)
+          if set.address_present?(base)
             request.hit[address] = true
             return request.clock_cycles_to_burn += cache_access_time
           end
 
-          if cache.blocks_available?(address) || cache.lru_dirty?
+          if set.blocks_available? || set.lru_dirty?
             return request.clock_cycles_to_burn += cache_miss_penalty + cache_access_time
           end
 
@@ -75,12 +93,14 @@ module Simulator
         end
 
         def update_clock_cycles_for_load(address)
-          if cache.address_present?(address)
+          set = cache.find(address)
+          base = cache.base_address(address)
+          if set.address_present?(base)
             request.hit[address] = true
             return request.clock_cycles_to_burn += cache_access_time
           end
 
-          if cache.blocks_available?(address) || cache.lru_dirty?(address)
+          if set.blocks_available? || set.lru_dirty?
             return request.clock_cycles_to_burn += cache_miss_penalty
           end
 
